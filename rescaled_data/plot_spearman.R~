@@ -1,0 +1,4 @@
+library('ggplot2')
+
+prior_data=read.table('prior_spearman_normalized_results_rescaled_unix.txt')
+high_conf_data=read.table('high_confidence_spearman_results.txt')
