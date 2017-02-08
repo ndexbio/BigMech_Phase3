@@ -23,10 +23,10 @@ ndex = nc.Ndex(host=host)
 data_file = '../Korkut et al. Data 12122016.xlsx'
 
 
+
 def read_data(fname):
     """Returns the data as a dictionary."""
     data = {}
-    #note: using the recentered data here
     data['protein'] = pandas.read_excel('../rescaled_data/Korkut_recentered.xlsx', sheetname='Sheet2',
                                         skiprows=[0], index_col=None)
     data['phenotype'] = pandas.read_excel(data_file,
@@ -80,11 +80,15 @@ url = 'http://general.bigmech.ndexbio.org:5602/rank_entities'
 heat_response_dict=dict()
 
 #prior:net_uuid='84f321c6-dade-11e6-86b1-0ac135e8bacf'
-net_uuid='84f321c6-dade-11e6-86b1-0ac135e8bacf'
+#net_uuid='84f321c6-dade-11e6-86b1-0ac135e8bacf'
 #high_confidence:net_uuid='b04e406b-dc88-11e6-86b1-0ac135e8bacf'
-#net_uuid='b04e406b-dc88-11e6-86b1-0ac135e8bacf'
+net_uuid='b04e406b-dc88-11e6-86b1-0ac135e8bacf'
 
 network = networkn.NdexGraph(server='http://public.ndexbio.org', uuid=net_uuid)
+
+f = io.BytesIO()
+f.write(reference_network_cx.content)
+f.seek(0)
 
 host = "http://www.ndexbio.org"
 directed_path_query_url = "http://general.bigmech.ndexbio.org:5603/directedpath/query"
@@ -132,7 +136,7 @@ for i in experiments:
             path_response_dict[i][g]=100
         print path_response_dict[i][g]
 
-fh=open('path_length_prior_response.txt','w')
+fh=open('path_length_response.txt','w')
 
 fh.write('\t'+'\t'.join([k for k in path_response_dict.keys()])+'\n')
 
@@ -172,12 +176,12 @@ def comparable_vectors(data,experiment,heat_response_dict,ab2gene_dict):
             next
     return spearmanr(heat_vector, phospho_vector)
 
-fh2=open('shortest_path_prir_spearman_results.txt','w')
+fh2=open('shortest_path_spearman_results.txt','w')
 
 fh2.write('Drug\tSpearman\tp-val\n')
 
 for experiment in data['protein']['Sample Description (drug abbre. | dose or time-point)']:
-    spear_tuple=comparable_vectors(data,experiment,path_response_dict,ab2gene_dict)
+    spear_tuple=comparable_vectors(data,experiment,heat_response_dict,ab2gene_dict)
     fh2.write(experiment+'\t'+str(spear_tuple[0])+'\t'+str(spear_tuple[1]/2)+'\n')
 
 fh2.close()

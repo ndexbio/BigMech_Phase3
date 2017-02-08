@@ -1,0 +1,23 @@
+__author__ = 'danielcarlin'
+
+import argparse
+import ndex.client as nc
+import ndex.networkn as networkn
+
+net_uuid='b04e406b-dc88-11e6-86b1-0ac135e8bacf'
+
+G = networkn.NdexGraph(server='http://public.ndexbio.org', uuid=net_uuid)
+
+probe_genes_mat=read_table('../genes.txt',na_values='none', header=None)
+
+probe_genes=list(probe_genes_mat[0])
+
+drug_desc=read_table('../drugs_hugo.txt',na_values='none')
+
+drug_genes=list()
+
+npaths=1
+forward_paths = cu.k_shortest_paths_multi(G, drug_genes, probe_genes, npaths=npaths)
+reverse_paths = cu.k_shortest_paths_multi(G, probe_genes, drug_genes, npaths=npaths)
+
+def r
