@@ -14,7 +14,8 @@ from indra.literature import pubmed_client
 from causal_paths.src.causpaths import DirectedPaths
 import copy
 import demo_notebooks.causal_paths.causal_utilities as cu
-from qca import QCA
+from causal_paths.src.path_scoring import PathScoring
+
 
 host = "http://www.ndexbio.org"
 directed_path_query_url = "http://general.bigmech.ndexbio.org:5603/directedpath/query"
@@ -117,17 +118,15 @@ for i in experiments:
     #source = ",".join(request_vector)
     #target = ",".join(gene_names)
 
-    qca = QCA()
     for g in gene_names:
         target=[g]
         max_number_of_paths = 1
        #url = directed_path_query_url + '?source=' + source + '&target=' + target + '&uuid='+net_uuid+'&server=www.ndexbio.org&pathnum=' + str(max_number_of_paths)
 
         #response=requests.post(url, files={"network_cx": f})
+
+        # TODO use cross country scoring in place of length scoring
         response= cu.k_shortest_paths_multi(network, request_vector, target, npaths=max_number_of_paths)
-
-        results_list = qca.find_causal_path(request_vector, target, relation_types=None)  # ["Activation", "controls-state-change-of", "in-complex-with", "controls-transport-of", "controls-phosphorylation-of"])
-
 
 
         pathnum=len(list(response))
