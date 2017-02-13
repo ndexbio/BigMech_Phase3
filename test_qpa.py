@@ -19,7 +19,7 @@ current_directory = path.abspath(path.dirname(__file__))
 with open(path.join(current_directory, 'korkut_experiments.json'), 'r') as korkut_file:
     korkut = json.load(korkut_file)
 
-pau.analyze_korkut_batch(network_uuid, ndex_host, path_rank_method, korkut, experiment_ids=["901|1.5,Tm|0.3"])
+pau.analyze_korkut_batch(network_uuid, ndex_host, path_rank_method, korkut, experiment_ids=None)  # ["901|1.5,Tm|0.3", "901|1.5,HN|6", "901|1.5"])
 
 with open(path.join(current_directory, 'korkut_results.json'), 'w') as results_file:
     json.dump(korkut, results_file, indent=4)

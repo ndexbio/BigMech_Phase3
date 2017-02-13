@@ -67,13 +67,17 @@ def make_predictions(experiment, network, path_comparison_method, use_drug_downs
     ps = PathScoring()
 
     target_to_top_path_map = {}
+    print sources
     for target in targets:
-        paths = cu.get_source_target_paths(network, sources, targets)
+        paths = cu.get_source_target_paths(network, sources, [target])
 
         # rank the paths, add top path to map
         paths.sort(key = lambda s: len(s))
 
-        target_to_top_path_map[target] = paths[0]
+        if len(paths) > 0:
+            target_to_top_path_map[target] = paths[0]
+        else:
+            print "path length is zero: %s" % target
 
     # rank the targets by top path, producing a target-to-rank dict, i.e. the prediction_dict
     experiment["target_paths"] = target_to_top_path_map
