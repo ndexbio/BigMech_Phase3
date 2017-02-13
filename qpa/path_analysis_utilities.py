@@ -2,14 +2,17 @@
 import ndex.client as nc
 from ndex.networkn import NdexGraph
 import pandas
+import logs
 from pandas import read_table
 from scipy.stats import spearmanr
 from indra.databases import uniprot_client
 # from indra.databases import hgnc_client
 # from indra.literature import pubmed_client
 # from causal_paths.src.causpaths import DirectedPaths
-import demo_notebooks.causal_paths.causal_utilities as cu
+import BigMechCausalUtils as cu
 from causal_paths.src.path_scoring import PathScoring
+
+#log = logs.get_logger('bigmech')
 
 # def get_all_gene_names(data):
 #     gene_names = data['antibody']['Gene Name']
@@ -66,22 +69,24 @@ def make_predictions(experiment, network, path_comparison_method, use_drug_downs
 
     ps = PathScoring()
 
+  #  log.info("start")
     target_to_top_path_map = {}
-    print sources
+  #  no_path_targets = []
     for target in targets:
-        paths = cu.get_source_target_paths(network, sources, [target])
 
-        # rank the paths, add top path to map
-        paths.sort(key = lambda s: len(s))
+        paths = cu.get_source_target_paths(network, sources, [target.strip()])
 
-        if len(paths) > 0:
+        if len(paths):
+            # rank the paths, add top path to map
+            paths.sort(key = lambda s: len(s))
             target_to_top_path_map[target] = paths[0]
-        else:
-            print "path length is zero: %s" % target
+   #     else:
+   #         no_path_targets.append(target)
 
     # rank the targets by top path, producing a target-to-rank dict, i.e. the prediction_dict
     experiment["target_paths"] = target_to_top_path_map
 
+    #print "No path on targets(" + str(len(no_path_targets))+ "):" + str(no_path_targets)
     # compute a spearman comparison of the prediction_dict to the measured protein data
 
 
