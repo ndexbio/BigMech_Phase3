@@ -32,8 +32,7 @@ npaths=1
 forward_paths = cu.k_shortest_paths_multi(G, drug_genes, probe_genes, npaths=npaths)
 reverse_paths = cu.k_shortest_paths_multi(G, probe_genes, drug_genes, npaths=npaths)
 
-def pathlength_cmp(G,path1,path2)
-{
+def pathlength_cmp(G,path1,path2):
     return(len(path1)-len(path2))
-}
+
 

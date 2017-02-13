@@ -1,18 +1,13 @@
 
 import ndex.client as nc
 import ndex.networkn as networkn
-import io
-import requests
 import pandas
 from pandas import read_table
-import json
-import math
 from scipy.stats import spearmanr
-from indra.databases import uniprot_client
-from indra.databases import hgnc_client
-from indra.literature import pubmed_client
+#from indra.databases import uniprot_client
+#from indra.databases import hgnc_client
+#from indra.literature import pubmed_client
 from causal_paths.src.causpaths import DirectedPaths
-import copy
 import demo_notebooks.causal_paths.causal_utilities as cu
 from causal_paths.src.path_scoring import PathScoring
 

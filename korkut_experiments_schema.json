@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "id": "http://www.ndexbio.org/api/schema/1.0.0/korkut",
+  "description": "experimental schema for BigMech Phase 3 experiment",
+  "type": "object",
+  "required": [
+    "experiments"
+  ],
+  "properties": {
+    "experiments": {
+      "description": "maps experiment ids to experiment objects",
+      "type": "object",
+      "additionalProperties": { "type": "#/definitions/experiment" }
+    },
+    "antibody_to_gene_symbol_map":{
+      "type": "object",
+      "description": "a map of antibody ids to corresponding gene symbols",
+      "additional_properties":{
+        "type": "array",
+        "items": "string"
+      }
+    },
+    "unmapped_antibodies":{
+      "type": "array",
+      "description": "antibody ids in the data with no corresponding gene symbols",
+      "items":{
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "experiment": {
+      "description": "one proteomic perturbation experiment",
+      "type": "object",
+      "properties": {
+        "id" : {
+          "type": "string",
+          "description": "unique id for the experiment"
+        },
+        "perturbed_protein_gene_symbols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "downstream_protein_gene_symbols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "measured_protein_changes":{
+          "type": "object",
+          "description": "a map of protein gene symbols to differential measurements",
+          "additional_properties": {
+            "type": "number",
+            "description": "the ratio of treated vs. control antibody binding"
+          }
+        },
+        "protein_predictions":{
+          "type": "object",
+          "description": "a map of protein gene symbols to prediction scores",
+          "additional_properties": {
+            "type": "number",
+            "description": "the prediction score for this protein"
+          }
+        },
+        "cell_viability": {
+          "description": "The ratio of treated vs control cell viability",
+          "type": "number"
+        },
+        "drug_ids": {
+          "type": "array",
+          "description": "The ids of the drugs with which the cell line was treated",
+          "items" : {
+            "type": "string"
+          }
+        }
+
+      }
+    }
+  }
+}
