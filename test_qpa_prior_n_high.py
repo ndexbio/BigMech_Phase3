@@ -9,8 +9,7 @@ import logs
 log = logs.get_logger('bigmech')
 
 ndex_host = "http://www.ndexbio.org"
-#path_rank_method = "shortest_path"
-path_rank_method = "cross_country"
+path_rank_method = ["cross_country" ,"shortest_path"]
 
 #prior:net_uuid='84f321c6-dade-11e6-86b1-0ac135e8bacf'
 #network_uuid='84f321c6-dade-11e6-86b1-0ac135e8bacf'
@@ -47,5 +46,6 @@ for network_name, network_uuid in reference_networks.iteritems():
 
     pau.analyze_korkut_batch(network_uuid, ndex_host, path_rank_method, korkut, experiment_ids=experiment_ids)  # ["901|1.5,Tm|0.3", "901|1.5,HN|6", "901|1.5"])
 
-    with open(path.join(current_directory, network_name + '_' + path_rank_method + '_results.json'), 'w') as results_file:
+    methods_used = "_".join(path_rank_method)
+    with open(path.join(current_directory, network_name + '_' + methods_used + '_results.json'), 'w') as results_file:
         json.dump(korkut, results_file, indent=4)

@@ -52,7 +52,7 @@ class ScoreExperiment:
 
         for key in scored_experiments.keys():
             for e in scored_experiments[key]:
-                edge_score_rank[e] = key
+                edge_score_rank[e] = 1.0 / key
 
         for l in sorted(edge_score_rank):
             print "'%s': %f, " % (l, edge_score_rank[l])
