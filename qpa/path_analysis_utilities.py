@@ -12,7 +12,7 @@ from indra.databases import uniprot_client
 import BigMechCausalUtils as cu
 from causal_paths.src.path_scoring import PathScoring
 
-#log = logs.get_logger('bigmech')
+log = logs.get_logger('bigmech')
 
 # def get_all_gene_names(data):
 #     gene_names = data['antibody']['Gene Name']
@@ -69,9 +69,10 @@ def make_predictions(experiment, network, path_comparison_method, use_drug_downs
 
     ps = PathScoring()
 
-  #  log.info("start")
+    log.info("start: " + str(len(targets)))
     target_to_top_path_map = {}
-  #  no_path_targets = []
+    target_path_score_map = {}
+    no_path_targets = []
     for target in targets:
 
         paths = cu.get_source_target_paths(network, sources, [target.strip()])
@@ -80,13 +81,29 @@ def make_predictions(experiment, network, path_comparison_method, use_drug_downs
             # rank the paths, add top path to map
             paths.sort(key = lambda s: len(s))
             target_to_top_path_map[target] = paths[0]
-   #     else:
-   #         no_path_targets.append(target)
+            target_path_score_map [target] = len(paths[0])
+        else:
+            no_path_targets.append(target)
+
 
     # rank the targets by top path, producing a target-to-rank dict, i.e. the prediction_dict
     experiment["target_paths"] = target_to_top_path_map
+    experiment["target_path_score"] = target_path_score_map
 
-    #print "No path on targets(" + str(len(no_path_targets))+ "):" + str(no_path_targets)
+    log.info("Getting spearman score")
+    v_changes = []
+    v_path_scores = []
+    for key, value in experiment["measured_protein_changes"].iteritems():
+        if target_path_score_map.get(key):
+            v_changes.append(value)
+            v_path_scores.append(target_path_score_map[key])
+        else:
+            print "Target " + key + " has no path score. Ignoring it "
+
+    spearman_rank = spearmanr(v_changes, v_path_scores)
+    experiment['spearman_rho'] = float(spearman_rank[0])
+    experiment['spearman_pvalue'] = float(spearman_rank[1])
+    print "No path on targets(" + str(len(no_path_targets))+ "):" + str(no_path_targets)
     # compute a spearman comparison of the prediction_dict to the measured protein data
 
 

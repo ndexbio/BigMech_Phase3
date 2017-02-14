@@ -52,7 +52,7 @@ def build_korkut(data, drug_desc):
     for antibody in antibody_to_change_map.keys():
         if antibody in antibody_to_gene_from_data:
             antibody_to_gene_symbol_map[antibody] = antibody_to_gene_from_data[antibody]
-        if antibody is not 'Sample Description (drug abbre. | dose or time-point)' and antibody is not "experimental sets":
+        elif antibody != 'Sample Description (drug abbre. | dose or time-point)' and antibody != "experimental sets":
             unmapped_antibodies.append(antibody)
     korkut_dict["unmapped_antibodies"] = unmapped_antibodies
     print "%s unmapped antibodies" % (len(unmapped_antibodies))
@@ -99,8 +99,12 @@ def build_experiment(experiment_id, data, drug_desc, antibody_to_gene_symbol_map
             # getting numeric change and taking absolute value
             absolute_antibody_change = abs(antibody_change[0])
             for gene_symbol in gene_symbols:
-                # TODO what do we do in case of conflict?
-                protein_changes[gene_symbol] = absolute_antibody_change
+                # in case of conflict, use the one with larger absolute_antibody_change value
+                if protein_changes.get(gene_symbol):
+                    if absolute_antibody_change > protein_changes[gene_symbol]:
+                        protein_changes[gene_symbol] = absolute_antibody_change
+                else:
+                    protein_changes[gene_symbol] = absolute_antibody_change
         else:
             print "no data for antibody %s" % (antibody)
 
