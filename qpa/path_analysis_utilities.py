@@ -6,6 +6,7 @@ import logs
 from pandas import read_table
 from scipy.stats import spearmanr
 from indra.databases import uniprot_client
+from experiment_scoring_helper import ScoreExperiment
 # from indra.databases import hgnc_client
 # from indra.literature import pubmed_client
 # from causal_paths.src.causpaths import DirectedPaths
@@ -62,6 +63,7 @@ def analyze_korkut_batch(network_uuid, ndex_host, path_comparison_method, korkut
         make_predictions(experiment, reference_network, path_comparison_method, use_drug_downstream=use_drug_downstream)
 
 def make_predictions(experiment, network, path_comparison_method, use_drug_downstream=False):
+    scoreExperiment = ScoreExperiment()
     sources = experiment["perturbed_protein_gene_symbols"]
     if use_drug_downstream:
         sources.extend(experiment["downstream_protein_gene_symbols"])
@@ -79,15 +81,27 @@ def make_predictions(experiment, network, path_comparison_method, use_drug_downs
 
         if len(paths):
             # rank the paths, add top path to map
-            paths.sort(key = lambda s: len(s))
-            target_to_top_path_map[target] = paths[0]
-            target_path_score_map [target] = len(paths[0])
+            if path_comparison_method is "cross_country":
+                results_list_sorted = sorted(paths, lambda x,y: ps.cross_country_scoring(x, y))
+                target_to_top_path_map[target] = results_list_sorted[0]
+            else:  # default to shortest_path
+                paths.sort(key = lambda s: len(s))
+                target_to_top_path_map[target] = paths[0]
+                target_path_score_map [target] = len(paths[0])
         else:
             no_path_targets.append(target)
 
+    #======================================================
+    # If comparison method is "cross_country" we can now
+    # process the scores  i.e. it otherwise can't happen
+    # until all results for this experiment are recorded
+    #=====================================================
+    if path_comparison_method is "cross_country":
+        target_path_score_map = scoreExperiment.rank_score(target_to_top_path_map)
 
     # rank the targets by top path, producing a target-to-rank dict, i.e. the prediction_dict
     experiment["target_paths"] = target_to_top_path_map
+
     experiment["target_path_score"] = target_path_score_map
 
     log.info("Getting spearman score")
@@ -105,9 +119,6 @@ def make_predictions(experiment, network, path_comparison_method, use_drug_downs
     experiment['spearman_pvalue'] = float(spearman_rank[1])
     print "No path on targets(" + str(len(no_path_targets))+ "):" + str(no_path_targets)
     # compute a spearman comparison of the prediction_dict to the measured protein data
-
-
-
 
 # The source_target_list for an experiment specifies a matrix of sources and targets for directed path search
 # For each experiment, the sources are either the target proteins of the drugs or
