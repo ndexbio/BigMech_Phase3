@@ -88,7 +88,10 @@ def make_predictions(experiment, network, path_comparison_method, use_drug_downs
             else:  # default to shortest_path
                 paths.sort(key = lambda s: len(s))
                 target_to_top_path_map[target] = paths[0]
-                target_path_score_map [target] = len(paths[0])
+                if len(paths[0]) > 0:
+                    target_path_score_map [target] = 1.0 / float(len(paths[0]))
+                else:
+                    target_path_score_map [target] = 1.0 / 1000.0
         else:
             no_path_targets.append(target)
 

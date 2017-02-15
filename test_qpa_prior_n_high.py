@@ -9,7 +9,7 @@ import logs
 log = logs.get_logger('bigmech')
 
 ndex_host = "http://www.ndexbio.org"
-path_rank_method = ["cross_country" ,"shortest_path"]
+path_rank_method = ["shortest_path"]
 
 #prior:net_uuid='84f321c6-dade-11e6-86b1-0ac135e8bacf'
 #network_uuid='84f321c6-dade-11e6-86b1-0ac135e8bacf'
@@ -18,8 +18,8 @@ path_rank_method = ["cross_country" ,"shortest_path"]
 #net_uuid='b04e406b-dc88-11e6-86b1-0ac135e8bacf'
 
 reference_networks = {
-    "prior": "84f321c6-dade-11e6-86b1-0ac135e8bacf"
-  # "high_confidence": 'b04e406b-dc88-11e6-86b1-0ac135e8bacf'
+    #"prior": "84f321c6-dade-11e6-86b1-0ac135e8bacf"
+    "high_confidence": 'b04e406b-dc88-11e6-86b1-0ac135e8bacf'
     }
 
 
