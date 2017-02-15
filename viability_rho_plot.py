@@ -32,39 +32,34 @@ input_file = analysis + '_results.json'
 
 with open(path.join(current_directory, "qpa_results", input_file), 'r') as korkut_file:
     resultobj = json.load(korkut_file)
-v = []
+ar = []
+cv = []
 for experiment_id, experiment in resultobj['experiments'].iteritems():
     if 'spearman_rho' in experiment:
         rho = experiment['spearman_rho']
+        viability = experiment['cell_viability']
         if not math.isnan(rho): #isinstance(rho, Number):
-            v.append(rho)
+            ar.append(abs(rho))
+            cv.append(viability)
         else:
             print "%s is a unexpected rho value" % (rho)
 
 fig = plt.figure()
 
-print "%s experiments" % (len(v))
+print "%s experiments" % (len(ar))
 
-n, bins, patches = plt.hist(v, 20, range=(-0.5,0.5), color='#33ccff')
-#
-# mu = np.mean(v)
-# sigma = np.std(v)
-#
-# print "mu = " + str(mu)
-# print "sigma = " + str(sigma)
-#
-# y = mlab.normpdf(bins, mu, sigma)
-# l = plt.plot(bins, y, 'r--', linewidth=2)
+plt.scatter(cv, ar)
 
-plt.xlabel('experiment rho')
-plt.ylabel('experiment count')
-plt.title('Correlation Distribution for %s Analysis' % (analysis_title))
+
+plt.xlabel('abs rho')
+plt.ylabel('cell viability')
+plt.title('Rho vs. Viability for %s Analysis' % (analysis_title))
    # plt.title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
    # plt.axis([40, 160, 0, 0.03])
 plt.grid(True)
 
 
-fig.savefig(path.join(current_directory, "qpa_results", analysis + '_plot.png'))
+fig.savefig(path.join(current_directory, "qpa_results", analysis + '_viability_plot.png'))
 
 #plt.show()
 
