@@ -2,5 +2,9 @@
 .idea/*
 .idea
 .idea/*/*
+qpa_results
+.idea/workspace.xml
 *.pyc
 qpa/*.pyc
+
+qpa/path_analysis_utilities.pyc
