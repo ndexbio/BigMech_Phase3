@@ -12,6 +12,8 @@ from experiment_scoring_helper import ScoreExperiment
 # from causal_paths.src.causpaths import DirectedPaths
 import BigMechCausalUtils as cu
 from causal_paths.src.path_scoring import PathScoring
+import requests
+import json
 
 log = logs.get_logger('bigmech')
 
@@ -60,7 +62,60 @@ def analyze_korkut_batch(network_uuid, ndex_host, path_comparison_method, korkut
         print str(experiment_id)
         experiment = experiments[experiment_id]
         # note that making predictions alters the experiment, adding the predictions and any other parameters
-        make_predictions(experiment, reference_network, path_comparison_method, use_drug_downstream=use_drug_downstream)
+        if (path_comparison_method == 'heat'):
+            print('performing heat diffusion')
+            make_predictions_heat(experiment, network_uuid, use_drug_downstream=use_drug_downstream)
+        else:
+            make_predictions(experiment, reference_network, path_comparison_method, use_drug_downstream=use_drug_downstream)
+
+
+def make_predictions_heat(experiment, net_uuid, use_drug_downstream=False):
+    scoreExperiment = ScoreExperiment()
+    sources = experiment["perturbed_protein_gene_symbols"]
+    if use_drug_downstream:
+        sources.extend(experiment["downstream_protein_gene_symbols"])
+    targets = experiment["measured_protein_changes"].keys()
+
+    #ps = PathScoring()
+
+    log.info("start: " + str(len(targets)))
+
+    headers = {'content-type': 'application/json'}
+    url = 'http://general.bigmech.ndexbio.org:5602/rank_entities'
+    heat_response_dict=dict()
+
+    request_dict={'identifier_set':sources,'kernel_id':net_uuid}
+
+    response=requests.post(url, data=json.dumps(request_dict), headers=headers)
+
+    heat_response=dict(response.json()['ranked_entities'])
+
+    target_to_top_path_map = {}
+    target_path_score_map = {}
+    no_path_targets = []
+    for target in targets:
+        target_path_score_map [target]=heat_response[target]
+        
+    # rank the targets by top path, producing a target-to-rank dict, i.e. the prediction_dict
+    experiment["target_paths"] = []
+
+    experiment["target_path_score"] = target_path_score_map
+
+    log.info("Getting spearman score")
+    v_changes = []
+    v_path_scores = []
+    for key, value in experiment["measured_protein_changes"].iteritems():
+        if target_path_score_map.get(key):
+            v_changes.append(value)
+            v_path_scores.append(target_path_score_map[key])
+        else:
+            print "Target " + key + " has no path score. Ignoring it "
+
+    spearman_rank = spearmanr(v_changes, v_path_scores)
+    experiment['spearman_rho'] = float(spearman_rank[0])
+    experiment['spearman_pvalue'] = float(spearman_rank[1])
+
+    # compute a spearman comparison of the prediction_dict to the measured protein data
 
 def make_predictions(experiment, network, path_comparison_method, use_drug_downstream=False):
     scoreExperiment = ScoreExperiment()
